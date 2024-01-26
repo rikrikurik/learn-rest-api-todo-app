@@ -1,0 +1,95 @@
+test_name: 認証ユーザが全ての操作を実行できることを確認する
+
+includes:
+  - !include common.yaml
+
+stages:
+  - name: トークン取得
+    request:
+      url: "{url.cognito_idp:s}"
+      headers:
+        Content-Type: application/x-amz-json-1.1
+        X-Amz-Target: AWSCognitoIdentityProviderService.InitiateAuth
+      json:
+        AuthParameters:
+          USERNAME : "{authorized_user.username:s}"
+          PASSWORD : "{authorized_user.password:s}"
+        AuthFlow: "USER_PASSWORD_AUTH"
+        ClientId: "{cognito_client:s}"
+      method: POST
+    response:
+      status_code: 200
+      save:
+        json:
+          token: AuthenticationResult.IdToken
+
+  - name: 新規アイテム作成(POSTメソッド)を実行できることを確認
+    request:
+      url: "{url.api:s}"
+      json:
+        title: "可燃ゴミ捨て"
+        description: "可燃ごみを出すこと"
+        dueDate: "2021-07-08T08:00:00"
+      method: POST
+      headers:
+        Authorization: "{token:s}"
+        content-type: application/json
+    response:
+      status_code: 201
+      save:
+        json:
+          returned_itemId: itemId
+
+  - name: 日付による検索(GETメソッド)を実行できることを確認
+    request:
+      url: "{url.api:s}"
+      params:
+        method: "duedate"
+        start: "2021-07-06T08:00:00"
+        end: "2021-07-09T08:00:00"
+      method: GET
+      headers:
+        Authorization: "{token:s}"
+        content-type: application/json
+    response:
+      status_code: 201
+
+  - name: タイトルによる検索(GETメソッド)を実行できることを確認
+    request:
+      url: "{url.api:s}"
+      params:
+        method: "title"
+        keyword: "ゴミ"
+      method: GET
+      headers:
+        Authorization: "{token:s}"
+        content-type: application/json
+    response:
+      status_code: 201
+
+  - name: 更新(PUTメソッド)を実行できることを確認
+    request:
+      url: "{url.api:s}"
+      json:
+        itemId: "{returned_itemId:s}"
+        title: "可燃ゴミ捨て"
+        description: "可燃ごみを出しましょう"
+        dueDate: "2021-07-10T08:00:00"
+      method: PUT
+      headers:
+        Authorization: "{token:s}"
+        content-type: application/json
+    response:
+      status_code: 201
+
+  - name: 削除(DELETEメソッド)を実行できることを確認
+    request:
+      url: "{url.api:s}"
+      json:
+        itemId: "{returned_itemId:s}"
+      method: DELETE
+      headers:
+        Authorization: "{token:s}"
+        content-type: application/json
+    response:
+      status_code: 201

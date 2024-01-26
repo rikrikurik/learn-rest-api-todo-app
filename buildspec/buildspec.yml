@@ -1,0 +1,34 @@
+version: 0.2
+
+phases:
+  install:
+    runtime_versions:
+      nodejs: 12
+    commands:
+      # Check npm version
+      - npm --version
+      # Move to the backend cdk source directory
+      - cd ${CODEBUILD_SRC_DIR}/packages/01-api/
+      # Installs cdk
+      - npm i aws-cdk
+      # Installs the npm dependencies as defined by the `package.json` file
+      - npm install
+      # Check cdk version
+      - npm run cdk --version
+  # pre_build:
+  #   commands:
+  #     - echo ""
+
+  build:
+    commands:
+      # Deploy backend
+      # cdk synth
+      - cd ${CODEBUILD_SRC_DIR}/packages/01-api/
+      # Builds the CDK App so it can be synthesized
+      - npm run build
+      # Synthesizes the CDK App
+      - npm run cdk synth
+      # List Stacks
+      - npm run cdk ls
+      # deploy resources
+      - npm run cdk deploy "*" -- --require-approval never
