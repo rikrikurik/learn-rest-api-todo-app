@@ -1,0 +1,206 @@
+swagger: "2.0"
+info:
+  title: "ToDoリスト API 仕様書"
+  version: "1.0.0"
+  description: "ToDoリストのデータ操作を行うAPIです．"
+host: "xxxxxxxxxx.execute-api.ap-northeast-1.amazonaws.com"
+basePath: "/v1"
+
+schemes:
+- "https"
+
+paths:
+  /item:
+    # 新規ToDo作成: POSTメソッド
+    post:
+      summary: "新規ToDoアイテムを作成する"
+      operationId: "addItem"
+      parameters:
+      - in: "header"
+        name: "Authorization"
+        type: "string"
+        description: "アクセストークン"
+      - in: "body"
+        name: "body"
+        description: "新規ToDoアイテムの情報"
+        required: true
+        schema:
+          $ref: "#/definitions/NewItem"
+      responses:
+        "401":
+          description: "認証エラー"
+        "501":
+          description: "処理エラー"
+        "201":
+          description: "成功時は，作成されたToDoアイテムの情報が返却される."
+          schema:
+            $ref: "#/definitions/CreatedItem"
+    # ToDo更新: PUTメソッド
+    put:
+      summary: "既存ToDoアイテムを更新する"
+      operationId: "updateItem"
+      parameters:
+      - in: "header"
+        name: "Authorization"
+        type: "string"
+        description: "アクセストークン"
+      - in: "body"
+        name: "body"
+        description: "ToDoアイテムの更新情報"
+        required: true
+        schema:
+          $ref: "#/definitions/UpdatedItem"
+      responses:
+        "401":
+          description: "認証エラー"
+        "501":
+          description: "処理エラー"
+        "201":
+          description: "成功時は，更新されたToDoアイテムの情報が返却される."
+          schema:
+            $ref: "#/definitions/UpdatedItem"
+    # ToDo削除: DELETEメソッド
+    delete:
+      summary: "既存ToDoアイテムを削除する"
+      operationId: "deleteItem"
+      parameters:
+      - in: "header"
+        name: "Authorization"
+        type: "string"
+        description: "アクセストークン"
+      - in: "body"
+        name: "body"
+        description: "削除するToDoアイテムの情報"
+        required: true
+        schema:
+          $ref: "#/definitions/DeleteItem"
+      responses:
+        "401":
+          description: "認証エラー"
+        "501":
+          description: "処理エラー"
+        "201":
+          description: "成功時は，削除されたToDoアイテムのidが返却される."
+          schema:
+            $ref: "#/definitions/DeleteItem"
+    # ToDo検索: GETメソッド
+    get:
+      summary: "既存ToDoアイテムを検索する"
+      operationId: "searchItem"
+      parameters:
+      - in: "header"
+        name: "Authorization"
+        type: "string"
+        description: "アクセストークン"
+      - in: "query"
+        name: "userId"
+        type: "string"
+        description: "ユーザID"
+        required: true
+      - in: "query"
+        name: "method"
+        type: "string"
+        description: "検索方法.タイトルでの検索は\"title\"，締め切り期間での検索は\"duedate\"を指定"
+        required: true
+      - in: "query"
+        name: "keyword"
+        type: "string"
+        description: "タイトル検索で使用.検索対象の文字列を指定."
+        required: false
+      - in: "query"
+        name: "start"
+        type: "string"
+        description: "締め切り期間検索で使用．検索期間の開始日時．"
+        required: false
+      - in: "query"
+        name: "end"
+        type: "string"
+        description: "締め切り期間検索で使用．検索期間の終了日時．"
+        required: false
+      responses:
+        "401":
+          description: "認証エラー"
+        "501":
+          description: "処理エラー"
+        "201":
+          description: "成功時は，検索されたToDoアイテムの情報が返却される."
+          schema:
+            $ref: "#/definitions/SearchResult"
+
+# オブジェクト構造定義
+definitions:      
+  NewItem:
+    type: "object"
+    properties:
+      title:
+        type: "string"
+        example: "可燃ゴミ捨て"
+      description:
+        type: "string"
+        example: "可燃ごみを出すこと"
+      dueDate:
+        type: "string"
+        example: "2021-07-08T08:00:00"
+
+  CreatedItem:
+    type: "object"
+    properties:
+      itemId:
+        type: "string"
+        example: "296b0ac8-666e-409c-8170-e5d46eccf298"
+      title:
+        type: "string"
+        example: "可燃ゴミ捨て"
+      description:
+        type: "string"
+        example: "可燃ごみを出すこと"
+      dueDate:
+        type: "string"
+        example: "2021-07-08T08:00:00"
+
+  UpdatedItem:
+    type: "object"
+    properties:
+      itemId:
+        type: "string"
+        example: "296b0ac8-666e-409c-8170-e5d46eccf298"
+      title:
+        type: "string"
+        example: "可燃ゴミ捨て"
+      description:
+        type: "string"
+        example: "可燃ごみを出しましょう"
+      dueDate:
+        type: "string"
+        example: "2021-07-10T08:00:00"
+
+  DeleteItem:
+    type: "object"
+    properties:
+      itemId:
+        type: "string"
+        example: "296b0ac8-666e-409c-8170-e5d46eccf298"
+
+  SearchResult:
+    type: "object"
+    properties:
+      count:
+        type: "integer"
+        example: "1"
+      items:
+        type: "array"
+        items:
+          type: "object"
+          properties:
+            itemId:
+              type: "string"
+              example: "296b0ac8-666e-409c-8170-e5d46eccf298"
+            title:
+              type: "string"
+              example: "可燃ゴミ捨て"
+            description:
+              type: "string"
+              example: "可燃ごみを出しましょう"
+            dueDate:
+              type: "string"
+              example: "2021-07-10T08:00:00"

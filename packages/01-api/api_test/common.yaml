@@ -1,0 +1,12 @@
+name: テストの共通変数
+description: テストの共通変数
+
+variables:
+  url:
+    api: <ルートURL>/item
+    cognito_idp: https://cognito-idp.ap-northeast-1.amazonaws.com/
+  cognito_client: <Cognito User PoolのID>
+  authorized_user:
+    username: "testuser@test.com"
+    password: "Pass!-W0Rd"
+
