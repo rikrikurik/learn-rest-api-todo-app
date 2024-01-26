@@ -1,0 +1,56 @@
+test_name: 認証なしのユーザアクセスが拒否されることを確認する
+
+includes:
+  - !include common.yaml
+
+stages:
+  - name: 新規アイテム作成(POSTメソッド)が拒否されることを確認
+    request:
+      url: "{url.api:s}"
+      json:
+        title: "可燃ゴミ捨て"
+        description: "可燃ごみを出すこと"
+        dueDate: "2021-07-08T08:00:00"
+      method: POST
+      headers:
+        content-type: application/json
+    response:
+      status_code: 401
+
+  - name: 検索(GETメソッド)が拒否されることを確認
+    request:
+      url: "{url.api:s}"
+      params:
+        method: "title"
+        start: "2021-07-06T08:00:00"
+        end: "2021-07-09T08:00:00"
+      method: GET
+      headers:
+        content-type: application/json
+    response:
+      status_code: 401
+
+  - name: 更新(PUTメソッド)が拒否されることを確認
+    request:
+      url: "{url.api:s}"
+      json:
+        itemId: "890f5170-1a69-4e4d-abf0-8078e4f2594c"
+        title: "可燃ゴミ捨て"
+        description: "可燃ごみを出しましょう"
+        dueDate: "2021-07-10T08:00:00"
+      method: PUT
+      headers:
+        content-type: application/json
+    response:
+      status_code: 401
+
+  - name: 削除(DELETEメソッド)が拒否されることを確認
+    request:
+      url: "{url.api:s}"
+      json:
+        itemId: "890f5170-1a69-4e4d-abf0-8078e4f2594c"
+      method: DELETE
+      headers:
+        content-type: application/json
+    response:
+      status_code: 401
